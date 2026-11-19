@@ -43,6 +43,10 @@ mobgap_dataset = function(
     missing_reference_error_type = missing_reference_error_type,
     ...
   )
+  # Python expects sequences of strings, not a bare string
+  for (nm in intersect(c("sensor_positions", "sensor_types"), names(kwargs))) {
+    kwargs[[nm]] = reticulate::r_to_py(as.list(kwargs[[nm]]))
+  }
   if (type == "example_lab") {
     return(do.call(md$LabExampleDataset, kwargs))
   }

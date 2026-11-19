@@ -163,6 +163,54 @@ round(cmp$summary, 2)
 #> 1      6.59
 ```
 
+## Getting the Mobilise-D TVS data (wrist and steps)
+
+The full dataset is on Zenodo, [record
+15861907](https://zenodo.org/records/15861907)
+([doi:10.5281/zenodo.15861907](https://doi.org/10.5281/zenodo.15861907)),
+version 1.0.2, licensed **CC-BY-NC-ND 4.0** (check that your use
+complies). It is one zip per cohort (HA, MS, PFF, PD, COPD, CHF), each
+**7-11 GB** (about 58 GB in total), so start with one cohort and check
+your disk space (zip plus unzipped).
+
+``` r
+mobgap_tvs_cohorts()                      # files, sizes, MD5 checksums
+
+# downloads, verifies the MD5, unzips; returns the folder to use as `path`
+path = mobgap_tvs_download("~/mobgap_tvs", cohorts = "HA")
+```
+
+This creates
+`path/<cohort>/<participant>/{Laboratory,Free-living}/data.mat`, which
+is the layout `mobgap`’s TVS datasets read. Interrupted downloads can be
+resumed by calling the function again (valid zips are reused). If you
+download the zips by hand from Zenodo, unzip every cohort into one
+folder and use that folder as `path`.
+
+Then load the wrist sensor with reference steps. A participant wears the
+unit on one wrist, so run each side and combine:
+
+``` r
+ds = mobgap_wrist_dataset(path, type = "lab", side = "left")      # or "free_living", "right"
+dp = mobgap_datapoints(ds)[[1]]
+x = mobgap_wrist_steps(dp)
+x$imu       # raw wrist acceleration (m/s^2); attr(x$imu, "sample_rate") is 100
+x$steps     # reference steps (initial contacts) with clock times
+x$wb_list   # walking bouts
+```
+
+Example output for one healthy-adult laboratory recording (simulated
+daily activities, left wrist):
+
+    sample_rate: 100   n_samples: 25784   n_steps: 32
+    mobgap_gravity_means(x$imu[, c("acc_x", "acc_y", "acc_z")])
+    #> acc_x acc_y acc_z
+    #>  7.85 -3.61 -2.51
+
+`participant_information.xlsx` is not part of the zips; it is only
+needed for `mobgap`’s participant-information properties, not for raw
+data or steps.
+
 ## Sensor axes and orientation
 
 Step-counting and gait models that read the raw `x`/`y`/`z` channels are
@@ -188,23 +236,22 @@ Units: `mobgap` returns accelerometer data in m/s^2 (the Mobilise-D
 
 ### Where wrist data and step references exist
 
-These notes come from an external analysis of the public [INDIP sample
-release](https://zenodo.org/records/7802795) (Zenodo 7802795, CC-BY
-4.0), not from `mobgap`’s bundled data, and were not re-verified here.
+`mobgap`’s bundled example data (`LabExampleDataset`) has only the lower
+back plus INDIP feet, **no wrist**. Wrist data are in the full
+Mobilise-D Technical Validation Study (TVS; see below): version 1.0.2
+added an INDIP IMU on the **left or right wrist** (each participant wore
+one) for all participants except CHF5084, CHF5086 and CHF5089, with
+INDIP initial contacts as the step reference for both laboratory and
+free-living recordings.
 
-- `mobgap`’s bundled example data (`LabExampleDataset`) has only the
-  lower back plus INDIP feet, **no wrist**.
-- In the INDIP sample, only the healthy-adult in-lab file has a wrist
-  sensor: the **right** wrist only (100 Hz, accelerometer in g), with
-  Mobilise-D INDIP initial contacts as the step reference for the
-  walking tests. Out-of-lab files and the other cohorts have no wrist.
-- The larger Technical Validation Study (Zenodo 13899386, CC-BY-NC-ND)
-  mentions a wrist IMU on the non-dominant hand for only some
-  participants.
-- The protocol paper (Mazza et al., *BMJ Open* 2021;11:e050785) defines
-  a device frame for the lower-back unit only and gives **no axis
-  definition for the wrist module**, so what the wrist `x` means in
-  other conventions can’t be established from it.
+The notes below on the smaller INDIP sample release ([Zenodo
+7802795](https://zenodo.org/records/7802795), CC-BY 4.0; one
+healthy-adult in-lab recording with a right wrist) come from an external
+analysis and were not re-verified here. The protocol paper (Mazza et
+al., *BMJ Open* 2021;11:e050785) defines a device frame for the
+lower-back unit only and gives **no axis definition for the wrist
+module**, so what the wrist `x` means in other conventions can’t be
+established from it.
 
 ### What an orientation check found (and what it does not show)
 

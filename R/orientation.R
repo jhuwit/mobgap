@@ -7,8 +7,8 @@
 #' axis rotations (signed axis permutations with determinant +1).
 #'
 #' @section Orientation in Mobilise-D data:
-#' (Findings reported from an analysis of the public INDIP sample release; see
-#' `vignette("mobgap")`.) In one right-wrist recording, gravity lay almost
+#' (Findings reported from an external analysis of the public INDIP sample
+#' release; not re-verified here. See `vignette("mobgap")`.) In one right-wrist recording, gravity lay almost
 #' entirely on `x` (mean about +1 g), while several step-model training sets
 #' have gravity on `y` or spread across axes. A `stepcount`-style model applied
 #' as-is undercounted by about 31% (124 vs 180 steps), and one of the 24

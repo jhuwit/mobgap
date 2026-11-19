@@ -21,3 +21,9 @@
   raw samples.
 * `mobgap_gravity_means()`, `mobgap_axis_rotations()` and `mobgap_rotate_acc()`
   for sensor-orientation checks; see the vignette for caveats.
+* `mobgap_wrist_steps()` returns wrist raw accelerometry with reference steps.
+* `mobgap_tvs_cohorts()` and `mobgap_tvs_download()` fetch (with MD5 checks) and
+  unzip the Mobilise-D Technical Validation Study from Zenodo record 15861907.
+* `mobgap_wrist_dataset()` loads the TVS wrist IMU (left or right) with INDIP
+  reference steps; `mobgap_dataset()` now accepts `sensor_positions` and
+  `sensor_types` as character vectors.

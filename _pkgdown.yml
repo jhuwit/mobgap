@@ -5,10 +5,13 @@ reference:
   - title: Setup
     contents: [have_mobgap, mobgap_cleanup_uv]
   - title: Datasets
-    contents: [mobgap_dataset, mobgap_datapoints, mobgap_index, mobgap_datapoint]
+    contents: [mobgap_dataset, mobgap_wrist_dataset, mobgap_datapoints,
+               mobgap_index, mobgap_datapoint]
+  - title: Getting the data
+    contents: [mobgap_tvs_cohorts, mobgap_tvs_download]
   - title: Reference parameters and steps
     contents: [mobgap_reference, mobgap_steps, mobgap_reference_summary,
                mobgap_step_times, mobgap_steps_by_interval]
   - title: Raw data and comparisons
-    contents: [mobgap_imu_data, mobgap_imu_steps, mobgap_to_acc,
+    contents: [mobgap_imu_data, mobgap_imu_steps, mobgap_wrist_steps, mobgap_to_acc,
                mobgap_compare_steps, mobgap_orientation]
