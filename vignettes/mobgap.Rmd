@@ -1,0 +1,148 @@
+---
+title: "Reference Gait Parameters and Raw Data with mobgap"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reference Gait Parameters and Raw Data with mobgap}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+uv_snapshot = mobgap::mobgap_uv_snapshot()
+ok = identical(Sys.getenv("NOT_CRAN"), "true") && mobgap::have_mobgap()
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = ok,
+                      fig.width = 7, fig.height = 4)
+library(mobgap)
+```
+
+The `mobgap` package wraps the [mobgap](https://github.com/mobilise-d/mobgap)
+Python module with `reticulate`. The Python requirements are declared with
+`reticulate::py_require()` when the package is loaded, so no manual Python
+setup is needed. The code below needs the Python module and internet access
+(to fetch the small example data), so it only runs when `NOT_CRAN=true`.
+
+## Loading a dataset
+
+The Python code
+
+```python
+ds = TVSFreeLivingDataset(path, reference_system="INDIP",
+                          missing_reference_error_type="skip")
+```
+
+becomes
+
+```r
+ds = mobgap_dataset(path, type = "free_living",
+                    reference_system = "INDIP",
+                    missing_reference_error_type = "skip")
+```
+
+Here we use the bundled example laboratory data instead.
+
+```{r dataset}
+ds = mobgap_dataset(type = "example_lab", reference_system = "INDIP")
+mobgap_index(ds)
+```
+
+## Reference walking bouts and steps
+
+```{r reference}
+dps = mobgap_datapoints(ds)
+dp = dps[[3]]
+ref = mobgap_reference(dp)
+ref$wb_list[, c("wb_id", "start", "end", "n_strides", "avg_cadence_spm")]
+mobgap_steps_per_wb(ref)
+mobgap_total_steps(ref)
+```
+
+For the whole dataset, with identifiers attached:
+
+```{r summary}
+res = mobgap_reference_summary(ds)
+res$totals
+```
+
+## Raw accelerometry and step counts
+
+`mobgap_imu_data()` returns raw sensor data for any loaded sensor position. For
+datasets with additional sensors (such as a wrist), pass
+`sensor_positions` to `mobgap_dataset()` and select them with `position`.
+
+```{r imu}
+imu = mobgap_imu_data(dp, position = "LowerBack")
+head(imu)
+```
+
+Steps can be timestamped and aggregated to any interval:
+
+```{r steps}
+steps = mobgap_step_times(dp, ref)
+head(steps)
+mobgap_steps_by_interval(steps, "min")
+```
+
+## Plot
+
+```{r plot}
+imu$mag = sqrt(imu$acc_x^2 + imu$acc_y^2 + imu$acc_z^2)
+plot(imu$time, imu$mag, type = "l", col = "grey40",
+     xlab = "Time", ylab = "Acceleration magnitude (m/s^2)")
+abline(v = steps$time, col = adjustcolor("red", 0.4))
+legend("topright", legend = c("acceleration", "reference steps"),
+       col = c("grey40", "red"), lty = 1, bty = "n")
+```
+
+
+## Comparing with `stepcount` (wrist-worn data)
+
+[`stepcount`](https://github.com/jhuwit/stepcount) estimates steps from
+accelerometry. `mobgap_to_acc()` reshapes `mobgap` raw data (m/s^2) into the
+`time`/`x`/`y`/`z` (g) format it expects, and `mobgap_compare_steps()` computes
+agreement with the reference steps.
+
+```r
+acc = mobgap_to_acc(mobgap_imu_data(dp, "LowerBack"))   # keeps attr "sample_rate"
+sc  = stepcount::stepcount(acc, sample_rate = attr(acc, "sample_rate"))
+mobgap_compare_steps(mobgap_step_times(dp), sc$steps, interval = 10,
+                     origin = sc$steps$time[1])
+```
+
+Python note: `stepcount` pins `pandas==2.0.*` while `mobgap`/`multigait` need
+newer pandas, so run them in separate R sessions. The results below were
+precomputed by `data-raw/stepcount-example.R` and stored in
+`inst/extdata/stepcount_example.rds`: (a) `stepcount` on the 40-minute
+wrist-worn recording `multigait::wrist_imu`, and (b, c) `stepcount` against the
+INDIP reference for the lower-back lab example (a rough check, since the models
+are trained on wrist data).
+
+```{r stepcount, fig.height = 7}
+ex = readRDS(system.file("extdata/stepcount_example.rds", package = "mobgap"))
+wrist = ex$wrist_stepcount
+cmp = mobgap_compare_steps(
+  data.frame(time = ex$lab_reference$time, n_steps = 1), ex$lab_stepcount,
+  interval = 10, origin = ex$lab_stepcount$time[1]
+)
+op = par(mfrow = c(3, 1), mar = c(4, 4, 2, 1))
+per_min = tapply(wrist$steps, floor(as.numeric(wrist$time) / 60) * 60, sum)
+barplot(per_min, col = "steelblue", border = NA, names.arg = NA,
+        main = "(a) stepcount on wrist-worn data", ylab = "Steps per minute",
+        xlab = "Minute of the 40-minute recording")
+barplot(rbind(cmp$data$reference, cmp$data$estimate), beside = TRUE,
+        col = c("red", "grey50"), border = NA,
+        main = "(b) Lab example: INDIP reference vs stepcount",
+        ylab = "Steps per 10 s", xlab = "10 s window")
+legend("topright", c("reference", "stepcount"), fill = c("red", "grey50"),
+       bty = "n")
+plot(cmp$data$mean, cmp$data$difference, pch = 19,
+     ylim = range(c(cmp$data$difference, cmp$summary$loa_lower, cmp$summary$loa_upper)),
+     main = "(c) Bland-Altman", xlab = "Mean steps", ylab = "stepcount - reference")
+abline(h = c(cmp$summary$bias, cmp$summary$loa_lower, cmp$summary$loa_upper),
+       lty = c(1, 2, 2))
+par(op)
+round(cmp$summary, 2)
+```
+
+```{r cleanup, include = FALSE, eval = TRUE}
+mobgap_cleanup_uv(uv_snapshot)
+```

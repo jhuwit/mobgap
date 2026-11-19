@@ -1,0 +1,19 @@
+bibentry(
+  "Manual",
+  title = "mobgap: R Interface to the 'mobgap' Python Module",
+  author = person("John", "Muschelli"),
+  year = format(Sys.Date(), "%Y"),
+  note = paste("R package version", meta$Version),
+  url = "https://github.com/jhuwit/mobgap",
+  textVersion = "Muschelli J. mobgap: R Interface to the 'mobgap' Python Module."
+)
+
+bibentry(
+  "Article",
+  title = "Mobilise-D insights to estimate real-world walking speed in multiple conditions with a wearable device",
+  author = "Micó-Amigo, M. E. and others",
+  journal = "Scientific Reports",
+  year = "2024",
+  note = "Describes the Mobilise-D algorithms implemented in the Python 'mobgap' module",
+  textVersion = "Micó-Amigo ME et al. (2024). Mobilise-D insights to estimate real-world walking speed in multiple conditions with a wearable device. Sci Rep."
+)

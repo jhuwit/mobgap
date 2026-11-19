@@ -1,0 +1,13 @@
+url: https://jhuwit.github.io/mobgap/
+template:
+  bootstrap: 5
+reference:
+  - title: Setup
+    contents: [have_mobgap, mobgap_cleanup_uv]
+  - title: Datasets
+    contents: [mobgap_dataset, mobgap_datapoints, mobgap_index, mobgap_datapoint]
+  - title: Reference parameters and steps
+    contents: [mobgap_reference, mobgap_steps, mobgap_reference_summary,
+               mobgap_step_times, mobgap_steps_by_interval]
+  - title: Raw data and comparisons
+    contents: [mobgap_imu_data, mobgap_to_acc, mobgap_compare_steps]
