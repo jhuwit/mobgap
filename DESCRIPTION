@@ -1,5 +1,5 @@
 Package: mobgap
-Title: R Interface to the 'mobgap' Python Module
+Title: Interface to the 'mobgap' Python Module
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "John",
