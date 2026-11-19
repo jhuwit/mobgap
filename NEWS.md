@@ -16,3 +16,8 @@
   correlation, Bland-Altman limits). README and vignette compare `stepcount`
   with the reference steps and run it on wrist-worn data.
 * `mobgap_cleanup_uv()` / `mobgap_uv_snapshot()` remove `uv` lock files.
+* `mobgap_imu_steps()` returns raw IMU data (any sensor position, e.g. wrist)
+  together with reference steps and walking bouts, optionally marked on the
+  raw samples.
+* `mobgap_gravity_means()`, `mobgap_axis_rotations()` and `mobgap_rotate_acc()`
+  for sensor-orientation checks; see the vignette for caveats.

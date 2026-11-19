@@ -8,6 +8,11 @@
 #' `mobgap_dataset(path, sensor_positions = c("LowerBack", "LeftWrist"),
 #' missing_sensor_error_type = "skip")`.
 #'
+#' @section Orientation:
+#' Raw axes are the device's axes. Models that read raw `x`/`y`/`z` are not
+#' rotation invariant; see [mobgap_gravity_means()] for helpers and caveats. The
+#' bundled example data has no wrist sensor.
+#'
 #' @param datapoint A datapoint from [mobgap_datapoints()].
 #' @param position Character vector of sensor positions to return, or `NULL`
 #' for all loaded positions.

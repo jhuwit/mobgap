@@ -26,6 +26,13 @@ to \code{\link[=mobgap_dataset]{mobgap_dataset()}} (the default is \code{"LowerB
 sensors with e.g.
 \code{mobgap_dataset(path, sensor_positions = c("LowerBack", "LeftWrist"), missing_sensor_error_type = "skip")}.
 }
+\section{Orientation}{
+
+Raw axes are the device's axes. Models that read raw \code{x}/\code{y}/\code{z} are not
+rotation invariant; see \code{\link[=mobgap_gravity_means]{mobgap_gravity_means()}} for helpers and caveats. The
+bundled example data has no wrist sensor.
+}
+
 \examples{
 \dontrun{
 ds = mobgap_dataset(type = "example_lab", reference_system = "INDIP")
